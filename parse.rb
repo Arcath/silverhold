@@ -145,14 +145,22 @@ class Bot
 			if msg=~ /^!remove/ then
 				if @admin.include? nick or @moderator.include? nick and identified nick
 					temp=msg.split("!remove ")[1]
-					item=msg.split(", ")[0]
-					fact=msg.split(", ")[1]
+					item=temp.split(", ")[0]
+					fact=temp.split(", ")[1]
 					if fact != ""
 						@db.query("DELETE FROM `smarts` WHERE `item` = '#{item}' AND `fact` = '#{fact}'")
 						notice("Forgot!",chan)
 					else
 						notice("Syntax Error",chan)
 					end
+				end
+			end
+			alerts=[]
+			res=@db.query("SELECT * FROM `smarts` WHERE `item` = 'alerts'")
+			res.each do |row|
+				lookfor=row[1].split(".")[0]
+				if msg =~ /#{lookfor}/ then
+					notice(row[1].split(".")[1],chan)
 				end
 			end
 			if msg=~ /^!wiki/ then
