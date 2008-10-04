@@ -155,7 +155,6 @@ class Bot
 					end
 				end
 			end
-			alerts=[]
 			res=@db.query("SELECT * FROM `smarts` WHERE `item` = 'alerts'")
 			res.each do |row|
 				lookfor=row[1].split(".")[0]
@@ -163,12 +162,19 @@ class Bot
 					notice(row[1].split(".")[1],chan)
 				end
 			end
-			if msg=~ /^!wiki/ then
-				string=msg.split("!wiki ")[1]
-				
-			end
-			if msg=~/stop!/ or msg=~/^Silverhold: stop/ then
-				notice("HAMMER TIME",chan)
+			if msg =~ /^!till / then
+				event=msg.split("!till ")[1]
+				s="#{nick}'s death.2010 05 09 12 00"
+				res=@db.query("SELECT * FROM `smarts` WHERE `item` = 'till' AND `fact` LIKE '%#{event}.%' LIMIT 1")
+				res.each do |row|
+					s=row[1]
+				end
+				fact=s.split(".")[0]
+				times=s.split(".")[1]
+				date=times.split(" ")
+				time=Time.mktime(date[0],date[1],date[2],date[3],date[4],date[5],0)				
+				diff=time.to_i-Time.now.to_i
+				notice("#{self.till(diff)} till #{fact}",chan)
 			end
 			if msg=~/^!math/ then
 				math=msg.split("!math ")[1]
@@ -207,6 +213,10 @@ class Bot
 		if message.ping?
 			server=message.scan(/^PING :(.*)/).join
 			send("PONG #{server}")
+		end
+		if message.invite?
+			join=message.scan(/^\:.* \:(\#.*)\r/).join
+			self.join(join)
 		end
 	end
 end

@@ -18,6 +18,34 @@ class Bot
 		@db=db
 		puts "#{@nick} initialised"
 	end
+	def till(stamp)
+		years=(stamp/31536000).to_i
+		months=((stamp-(years*31536000))/2628000).to_i
+		days=((stamp-(years*31536000)-(months*2628000))/86400).to_i
+		hours=((stamp-(years*31536000)-(months*2628000)-(days*86400))/3600).to_i
+		minutes=((stamp-(years*31536000)-(months*2628000)-(days*86400)-(hours*3600))/60).to_i
+		seconds=stamp-(years*31536000)-(months*2628000)-(days*86400)-(hours*3600)-(minutes*60)
+		s=""
+		if years != 0 then
+			s=s+"#{years} Years "
+		end
+		if months != 0 then
+			s=s+"#{months} Months "
+		end
+		if days != 0 then
+			s=s+"#{days} Days "
+		end
+		if hours != 0 then
+			s=s+"#{hours} Hours "
+		end
+		if minutes != 0 then
+			s=s+"#{minutes} Minutes "
+		end
+		if seconds != 0 then
+			s=s+"#{seconds} Seconds"
+		end
+		return s
+	end
 end
 
 nick=@db.getvalue(1,'system','field','nick')
