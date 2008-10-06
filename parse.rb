@@ -135,11 +135,59 @@ class Bot
 			if msg =~ /^!about/ then
 				item=msg.split("!about ")[1]
 				if @db.has(item,'smarts','item')==1
-					notice("#{item}:",chan)
 					res=@db.query("SELECT * FROM `smarts` WHERE `item` = '#{item}'")
+					i=0
 					res.each do |row|
-						notice(row[1],chan)
+						if i == 0 then
+							notice("#{item}:  #{row[1]}",chan)
+						elsif i <= 3 then
+							notice("#{' '*(item.length + 3)}#{row[1]}",chan)
+						elsif i == 4 then
+							@more="#{item}*|*#{row[1]}"
+							notice("There is more type \"!more\"",chan)
+						elsif i >= 5 then
+							@more+="*|*#{row[1]}"
+						end
+						i+=1
 					end
+				else
+					notice("I dont know anything about #{item}",chan)
+				end
+				like=""
+				put=0
+				res=@db.query("SELECT * FROM `smarts` WHERE `item` LIKE '%#{item}%'")
+				res.each do |row|
+					if row[0] != item  and put <= 2 and !like.include? row[0] then
+						put+=1
+						like+="#{row[0]}, "
+					end
+				end
+				if like != "" then
+					notice("You might have been looking for #{like[0...(like.length-2)]}",chan)
+				end
+			end
+			if msg =~ /^!mo(re|ar)$/ then
+				if @more != "" then
+					mores=@more.split("*|*")
+					i=0
+					@more=""
+					mores.each do |more|
+						if i == 0 then
+							item=more
+						elsif i == 1
+							notice("#{item}:  #{more}",chan)
+						elsif i <= 4
+							notice("#{' '*(item.length+3)}#{more}",chan)
+						elsif i == 5
+							@more="#{item}*|*#{more}"
+							notice("There is still more type \"!more\"",chan)
+						elsif i >= 6
+							@more+="*|*#{more}"
+						end
+						i+=1
+					end
+				else
+					notice("There is no overflow",chan)
 				end
 			end
 			if msg=~ /^!remove/ then
@@ -186,7 +234,7 @@ class Bot
 						out = "Invalid Command"
 					else
 						Timeout::timeout(1) {
-							out = Thread.new { $SAFE=4; eval math }.value.inspect
+							out = Thread.new { $SAFE=4; eval math.gsub("^","**") }.value.inspect
 						}
 					end
 					if out.length > 400
@@ -210,9 +258,14 @@ class Bot
 				notice(out,chan)
 			end
 		end
+		if !(message.ping?) and @lastmsg  <= Time.now.to_i-1800 then
+			notice("Welcome to #Whitefall!","#whitefall")
+		end
 		if message.ping?
 			server=message.scan(/^PING :(.*)/).join
 			send("PONG #{server}")
+		else
+			@lastmsg=Time.now.to_i
 		end
 		if message.invite?
 			join=message.scan(/^\:.* \:(\#.*)\r/).join
