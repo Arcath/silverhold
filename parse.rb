@@ -32,6 +32,7 @@ end
 class Bot
 	def parse
 		message=self.recv
+		puts message
 		if message.privmsg?
 			msg=message.split(/\:/,3)[2].sub("\r\n",'')
 			nick=message.split(/\!/)[0].sub(/^\:/,'')
@@ -224,11 +225,26 @@ class Bot
 				diff=time.to_i-Time.now.to_i
 				notice("#{self.till(diff)} till #{fact}",chan)
 			end
-			if msg=~/^!math/ then
+			if msg=~/^!(math|m) / then
 				math=msg.split("!math ")[1]
+				if !msg.include? "math" then
+					math=msg.split("!m ")[1]
+				end
 				i = Math.sqrt(-1)
 				everything = 42
 				leet = 1337
+				def conv(from,to,val)
+					if from == "b" and to == "kb" then
+						out=val.to_f/1024.0
+					end
+					if from == "kb" and to == "mb" then
+						out=val.to_f/1024.0
+					end
+					if from == "b" and to == "mb" then
+						out=conv("kb","mb",conv("b","kb",val))
+					end
+					return out
+				end
 				begin
 					if math =~ /sleep/ or math =~ /eval/ or math =~ /Thread/ or math =~ /Timeout/
 						out = "Invalid Command"
@@ -257,13 +273,61 @@ class Bot
 				end
 				notice(out,chan)
 			end
+			if @admin.include? chan or @moderator.include? chan and identified chan then
+				if msg[0...2] == "op" then
+					notice("Opping you now...",chan)
+					self.send("PRIVMSG ChanServ :op #whitefall #{chan}")
+				elsif msg[0...4] == "deop" then
+					notice("Deopping now",chan)
+					self.send("PRIVMSG ChanServ :deop #whitefall #{chan}")
+				end
+			end
+			if msg =~ /^hows cockface/ then
+				self.send("PRIVMSG ChanServ :op #whitefall")
+				self.send("KICK #whitefall #{nick} :#{@nick}")
+				self.send("PRIVMSG ChanServ :deop #whitefall")
+			end
+			if (rand*100).to_i >= 90 and @lol==1 then
+				self.send("PRIVMSG #{chan} :lol")
+			end
+			if msg =~ /^!lol/ and @admin.include? nick then
+				if @lol==1 then
+					@lol=0
+				elsif @lol==0 then
+					@lol=1
+				end
+			end
+			if msg =~ /^!stats/ then
+				split=msg.split(" ")[1]
+				if split.length == 0 then
+					find=nick
+				else
+					find=split
+				end
+				
+			end
 		end
-		if !(message.ping?) and @lastmsg  <= Time.now.to_i-1800 then
+		if !(message.ping?) and !(message.part?) and @lastmsg  <= Time.now.to_i-1800 then
 			notice("Welcome to #Whitefall!","#whitefall")
+		end
+		if message.join?
+			ban=[]
+			res=@db.query("SELECT * FROM `smarts` WHERE `item` = 'ban list'")
+			res.each do |row|
+				ban.push(row[1])
+			end
+			s=message.split("!")[0]
+			s=s[1...s.length]
+			if ban.include? s
+				self.send("PRIVMSG ChanServ :op #whitefall")
+				self.send("KICK #whitefall #{s} :#{@nick}")
+				self.send("PRIVMSG ChanServ :deop #whitefall")
+			end
 		end
 		if message.ping?
 			server=message.scan(/^PING :(.*)/).join
 			send("PONG #{server}")
+			res=@db.query("SELECT * FROM `system`");
 		else
 			@lastmsg=Time.now.to_i
 		end

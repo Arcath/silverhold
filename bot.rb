@@ -18,6 +18,7 @@ class Bot
 		@db=db
 		@lastmsg=Time.now.to_i
 		@more=""
+		@lol=0
 		puts "#{@nick} initialised"
 	end
 	def till(stamp)
