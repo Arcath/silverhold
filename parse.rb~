@@ -313,9 +313,6 @@ class Bot
 				change=split[1]
 				notice("#{nick} just gave #{target} #{change}",chan)
 			end
-			if chan == "#whitefall" then
-				self.log(nick,msg)
-			end
 		end
 		if !(message.ping?) and !(message.part?) and @lastmsg  <= Time.now.to_i-1800 then
 			notice("Welcome to #Whitefall!","#whitefall")

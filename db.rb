@@ -16,4 +16,4 @@ class Mysql
 	end
 end
 
-@db=Mysql::new("127.0.0.1","bot","dyton","bot")
+@db=Mysql::new("localhost","bot","dyton","bot")

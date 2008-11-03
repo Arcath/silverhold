@@ -5,7 +5,6 @@ require "mathn"
 require 'db'
 require 'irc'
 require 'parse'
-require 'log'
 require 'timeout'
 
 class Bot
