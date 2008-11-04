@@ -299,13 +299,12 @@ class Bot
 				end
 			end
 			if msg =~ /^!stats/ then
-				split=msg.split(" ")[1]
-				if split.length == 0 then
+				if !msg.include? " " then
 					find=nick
 				else
-					find=split
+					find=msg.split(" ")[1]
 				end
-				
+				self.stats(find,chan)
 			end
 			if msg =~ /^[A-Za-z ]*\ gets (\+|\-)/ then
 				split=msg.split(" gets ")

@@ -30,4 +30,4 @@ rescue EOFError
 	file.close
 end
 puts @nicks
-puts @posts
+puts @postsc

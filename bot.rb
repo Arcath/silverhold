@@ -6,6 +6,7 @@ require 'db'
 require 'irc'
 require 'parse'
 require 'log'
+require 'stat'
 require 'timeout'
 
 class Bot
