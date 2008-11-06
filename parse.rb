@@ -312,6 +312,10 @@ class Bot
 				change=split[1]
 				notice("#{nick} just gave #{target} #{change}",chan)
 			end
+			if msg=~ /^lol @ .*/ then
+				at=msg.split("@ ")[1]
+				notice("#{nick} was humored by #{at}",chan)
+			end
 			if chan == "#whitefall" then
 				self.log(nick,msg)
 			end
